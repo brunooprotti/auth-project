@@ -1,6 +1,7 @@
 using AspNetCore.Identity.MongoDbCore.Infrastructure;
 using auth_backend.DAL.Model;
 using auth_backend.mongo;
+using auth_backend.services;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -27,9 +28,10 @@ builder.Services.AddSwaggerGen();
 
 var mongoDBSettings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
 builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
+builder.Services.ConfigureCors();
 
-builder.Services.AddDbContext<CarBookingDbContext>(options =>
-options.UseMongoDB(mongoDBSettings.AtlasURI ?? "", mongoDBSettings.DatabaseName ?? ""));
+//builder.Services.AddDbContext<CarBookingDbContext>(options =>
+//options.UseMongoDB(mongoDBSettings.AtlasURI ?? "", mongoDBSettings.DatabaseName ?? ""));
 
 
 ////Se agrega Identity

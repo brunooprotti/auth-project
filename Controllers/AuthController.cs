@@ -9,6 +9,11 @@ namespace auth_backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly ILogger _logger;
+        public AuthController(ILogger<AuthController> logger)
+        {
+            _logger = logger;
+        }
         // GET: api/<AuthController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -28,8 +33,17 @@ namespace auth_backend.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public void Post([FromBody] CreateUserDto value)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto value)
         {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Ocurrio un error al crear un usuario", ex.Message);
+                throw ex;
+            }
         }
 
         // PUT api/<AuthController>/5
