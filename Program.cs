@@ -1,5 +1,6 @@
 using AspNetCore.Identity.MongoDbCore.Infrastructure;
 using auth_backend.DAL.Model;
+using auth_backend.Middlewares;
 using auth_backend.mongo;
 using auth_backend.services;
 using Microsoft.Extensions.Options;
@@ -13,6 +14,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 
 //Connection string for mongodb
 
@@ -41,6 +44,10 @@ builder.Services.ConfigureCors();
 ////Se Agrega AutoMapper
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+builder.Services.AddLogging();
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
+
 var app = builder.Build();
 
 
@@ -51,20 +58,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-
-
-//builder.Services.Configure<>
-
-//Connection string for sqlserver
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//{
-//    options.UseSqlServer(builder.Configuration[]);
-//});
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
