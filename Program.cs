@@ -1,10 +1,10 @@
-using AspNetCore.Identity.MongoDbCore.Infrastructure;
-using auth_backend.DAL.Model;
+using auth_backend.Bussiness.Mappers;
+using auth_backend.Bussiness.Repository;
+using auth_backend.Bussiness.Repository.IRepository;
+using auth_backend.DAL;
 using auth_backend.Middlewares;
-using auth_backend.mongo;
 using auth_backend.services;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,38 +15,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+////Se Agrega AutoMapper
+builder.Services.AddAutoMapper(typeof(AuthMapper));
+//builder.Services.AddSingleton<IUserRepository, UserRepository>();
 
+builder.Services.AddLogging();
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
-//Connection string for mongodb
-
-//var mongoDbSettings = builder.Configuration.GetSection(nameof(MongoDbConfig)).Get<MongoDbConfig>();//El GetSection(nameof(MongoDbConfig)) busca el nombre de la clase en el app settings y el Get lo convierte al tipo
-//var asd = builder.Configuration.GetSection("MongoDbConfig");
-//builder.Services.Configure<MongoDbConfig>( builder.Configuration.GetSection("MongoDbConfig") );
-
-//builder.Services.AddSingleton<IMongoClient>(sp =>
-//{
-//    var config = sp.GetRequiredService<IOptions<MongoDbConfig>>().Value;
-//    return new MongoClient(config.ConnectionString);
-//});
-
-var mongoDBSettings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
-builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
+builder.Services.AddDbContext<ApplicationDbContext>( options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSQL"));
+});
+var sql = builder.Configuration.GetConnectionString("ConnectionSQL");
 builder.Services.ConfigureCors();
 
-//builder.Services.AddDbContext<CarBookingDbContext>(options =>
-//options.UseMongoDB(mongoDBSettings.AtlasURI ?? "", mongoDBSettings.DatabaseName ?? ""));
-
-
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 ////Se agrega Identity
 //builder.Services.AddIdentity<User, Roles>()
 //    .AddMongoDbStores<User, Roles, Guid>( mongoDbSettings.ConnectionString , mongoDbSettings.Name );
 
-////Se Agrega AutoMapper
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-builder.Services.AddLogging();
-builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 var app = builder.Build();
 
