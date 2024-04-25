@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -43,7 +44,10 @@ namespace auth_backend.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                
+                var message = ex.InnerException == null ? ex.Message : ex.InnerException.ToString();
+                
+                _logger.LogError(ex, message);
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 //Creamos objeto para retornar en la response de la request.
@@ -53,7 +57,7 @@ namespace auth_backend.Middlewares
                     Status = (int)HttpStatusCode.InternalServerError,
                     Type = "Server error",
                     Title = "Server error",
-                    Detail = "An internal server has ocurred"
+                    Detail = ex.Message
                 };
 
                 string json = JsonSerializer.Serialize(problem);

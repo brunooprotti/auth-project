@@ -2,6 +2,7 @@ using auth_backend.Bussiness.Mappers;
 using auth_backend.Bussiness.Repository;
 using auth_backend.Bussiness.Repository.IRepository;
 using auth_backend.DAL;
+using auth_backend.DAL.Model;
 using auth_backend.Middlewares;
 using auth_backend.services;
 using Microsoft.EntityFrameworkCore;
@@ -23,15 +24,19 @@ builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 builder.Services.AddDbContext<ApplicationDbContext>( options => {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSQL"));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("ConnectionSQL"),
+        x => x.MigrationsAssembly("auth-backend.DAL")
+        );
 });
-var sql = builder.Configuration.GetConnectionString("ConnectionSQL");
+
 builder.Services.ConfigureCors();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-////Se agrega Identity
-//builder.Services.AddIdentity<User, Roles>()
-//    .AddMongoDbStores<User, Roles, Guid>( mongoDbSettings.ConnectionString , mongoDbSettings.Name );
+
+//Se agrega Identity
+builder.Services.AddIdentity<User, Roles>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 
